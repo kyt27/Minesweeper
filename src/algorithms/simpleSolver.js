@@ -3,6 +3,7 @@ import {
     COLUMNS,
     MINES,
 } from "../minesweeper.js";
+import { mineSearch } from "./algoUtils.js";
 
 export class SimpleSolver {
     numBoard;
@@ -13,6 +14,7 @@ export class SimpleSolver {
     initialClickedColumn;
 
     visited;
+    vsitCount;
     unusedCells;
 
     constructor(initialClickedRow, initialClickedColumn, numBoard) {
@@ -23,6 +25,7 @@ export class SimpleSolver {
         this.initialClickedColumn = initialClickedColumn;
 
         this.visited = []
+        this.visitCount = 0;
         this.unusedCells = [];
 
         for(let r = 0; r < ROWS; r++) {
@@ -92,19 +95,19 @@ export class SimpleSolver {
             let c = this.unusedCells[i][1];
             if(this.numBoard[r][c] == -1) activeMines.push([r, c]);
         }
-        
-        if(activeMines.length == 0) {
-            for(let r = 0; r < ROWS; r++) {
-                for(let c = 0; c < COLUMNS; c++) {
-                    if(!this.visited[r][c]) {
 
+        return activeMines;
+        
+        if(this.visitCount < ROWS, COLUMNS && activeMines.length == 0) {
+            for(let x = 0; x < ROWS; r++) {
+                if(activeMines.length > 0) break;
+
+                for(let y = 0; y < COLUMNS; c++) {
+                    if(!this.visited[x][y]) {
+                        activeMines = mineSearch(visited, r, c);
                     }
                 }
             }
         }
-
-        // TODO: FIX
-
-        return activeMines;
     }
 }

@@ -51,7 +51,7 @@ function isFringe(domainBoard, r, c) {
     for (let x = Math.max(0, r-1); x < Math.min(ROWS, r+2); x++) {
         for (let y = Math.max(0, c-1); y <  Math.min(COLUMNS, c+2); y++) {
             if(x == r && y == c) continue;
-            if(domainBoard[x][y]['solved'] == true) list.push([x, y]);
+            if(domainBoard[x][y]['solved'] == true && domainBoard[x][y]['value'] > 0) list.push([x, y]);
         }
     }
     return list;
@@ -78,19 +78,20 @@ export function findFringeCells(domainBoard) {
         for (let y = 0; y < COLUMNS; y++) {
             let numCells = isFringe(domainBoard, x, y);
 
-            if(numCells.length)
-            if(isFringe(domainBoard, x, y).length > 0) {
+            if(numCells.length > 0) {
                 board[x][y] = true;
                 list.push([x, y]);
-
-
+                for (pair in numCells) {
+                    set.add(pair);
+                }
             }
         }
     }
 
     return {
         'fringeBoard': board, 
-        'list': list
+        'list': list,
+        'solvedSet': set
     };
 }
 
@@ -119,4 +120,8 @@ export function updateSolved(domainBoard, fringe) {
     }
 
     return domainBoard
+}
+
+export function stringToNumArray(str) {
+    return str.split(',').map(x => Number(x));
 }

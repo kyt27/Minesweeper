@@ -7,6 +7,17 @@ import {
 } from "../minesweeper.js";
 
 export class kWC {
+    numBoard;
+    K;
+
+    activeCells;
+
+    initialClickedRow;
+    initialClickedColumn;
+
+    visited;
+    unusedCells;
+    
     constructor(initialClickedRow, initialClickedColumn, numBoard, K) {
         this.numBoard = numBoard;
         this.K = K;
@@ -23,4 +34,70 @@ export class kWC {
         }
     }
 
+    visit(r, c) {
+        this.visited[r][c] = true;
+        this.visitCount++;
+    }
+
+    pushUnused() {
+        this.activeCells = this.unusedCells.concat(this.activeCells);
+        this.unusedCells = [];
+    }
+
+    solve() {
+        this.visit(this.initialClickedRow, this.initialClickedColumn);
+        this.activeCells.push([this.initialClickedRow, this.initialClickedColumn]);
+
+        while(this.activeCells.length > 0) {
+            let coords = this.activeCells.pop();
+            let r = coords[0];
+            let c = coords[1];
+
+            if(this.numBoard[r][c] == -1) {
+                this.visit(r, c);
+                continue;
+            }
+
+            let minesCount = 0;
+            let visitedMines = 0;
+            let unvisitedCells = 0;
+
+            for(let x = Math.max(0, r-1); x < Math.min(ROWS, r+2); x++) {
+                for(let y = Math.max(0, c-1); y < Math.min(COLUMNS, c+2); y++) {
+                    if(this.numBoard[x][y] == -1) {
+                        minesCount++;
+                        if(this.visited[x][y]) visitedMines++;
+                    }
+                    if(!this.visited[x][y]) unvisitedCells++;
+                }
+            }
+
+            if(minesCount == 0 || minesCount - visitedMines == 0 || minesCount - visitedMines - unvisitedCells == 0) {
+                this.visited[r][c] = true;
+                this.pushUnused();
+                for(let x = Math.max(0, r-1); x < Math.min(ROWS, r+2); x++) {
+                    for(let y = Math.max(0, c-1); y < Math.min(COLUMNS, c+2); y++) {
+                        if(!this.visited[x][y]) {
+                            this.visit(r, c);
+                            this.activeCells.push([x, y]);
+                        }
+                    }
+                }
+                continue;
+            }
+
+            this.unusedCells.push([r, c]);
+        }
+
+        let activeMines = [];
+
+        for(let i=0; i<this.unusedCells.length; i++) {
+            let r = this.unusedCells[i][0];
+            let c = this.unusedCells[i][1];
+            if(this.numBoard[r][c] == -1) activeMines.push([r, c]);
+        }
+    
+
+        return activeMines;
+    }
 }
