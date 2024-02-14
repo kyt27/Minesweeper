@@ -1,7 +1,7 @@
 import { SimpleSolver } from "./algorithms/simpleSolver.js";
-var ROWS = 10;
-var COLUMNS= 10;
-var MINES = 20;
+var ROWS = 9;
+var COLUMNS= 9;
+var MINES = 10;
 var NO_GUESS = true;
 /** 
  * Select the solver to be used
@@ -94,7 +94,6 @@ function clickTile() {
                 shuffledTiles.push([x, y]);
             }
         }
-
         setMines();
     }
 
@@ -109,6 +108,9 @@ function clickTile() {
 }
 
 function setMines() {
+    shuffledTilesIndex= 0;
+
+    numBoard = [];
     for(let r = 0; r < ROWS; r++) {
         numBoard.push(Array(COLUMNS).fill(0));
     }
@@ -130,7 +132,6 @@ function setMines() {
                 if(numBoard[x][y] >= 0) numBoard[x][y]++;
             }
         }
-
     }
 
     while(NO_GUESS) {
@@ -152,12 +153,26 @@ function setMines() {
         const i = Math.floor(Math.random() * (activeList.length));
         console.log(i);
 
-        relocateMines(activeList[i][0], activeList[i][1]);
+        try {
+            relocateMines(activeList[i][0], activeList[i][1]);
+        } catch(err) {
+            if (err == "invalid") {
+                break;
+                seed = -1;
+            }
+        }
+    }
+
+    if(seed == -1) {
+        seed = 0;
+        setMines();
+    } else {
+        generateSeed();
     }
 }
 
 function relocateMines(r, c) {
-    if(shuffledTilesIndex >= shuffledTiles.length) throw "valid mines not found";
+    if(shuffledTilesIndex >= shuffledTiles.length) throw "invalid";
     let coords = shuffledTiles[shuffledTilesIndex];
     numBoard[coords[0]][coords[1]] = -1;
     numBoard[r][c] = 0;
@@ -168,6 +183,10 @@ function relocateMines(r, c) {
         }
     }
     shuffledTilesIndex++;
+}
+
+function generateSeed() {
+    seed = ROWS.toString() + "-" + COLUMNS.toString() + "-" 
 }
 
 function increaseMineCount() {
